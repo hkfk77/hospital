@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.RegistrationMapper">
+	
+	<resultMap type="RegistrationInfor" id="RegistrationInforDoctotAndSection">
+		<id column="medical_record" property="medical_record" />
+		<result column="name" property="name"/>
+		<result column="certificate_type" property="certificate_type"/>
+		<result column="ID_num" property="ID_num"/>
+		<result column="social_safe_num" property="social_safe_num"/>
+		<result column="phone" property="phone"/>
+		<result column="self_paying" property="self_paying"/>
+		<result column="sex" property="sex"/>
+		<result column="career" property="career"/>
+		<result column="early_appointment" property="early_appointment"/>
+		<result column="doctor_id" property="doctor_id"/>
+		<result column="status" property="status"/>
+		<result column="noted" property="noted"/>
+		<result column="time" property="time"/>
+		<result column="section_id" property="section_id"/>
+		<result column="age" property="age"/>
+		<result column="registration_fee" property="registration_fee"/>
+		<association property="section" javaType="Section">
+			<id column="id" property="id"/>
+			<result column="seccp_num" property="seccp_num"/>
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		<association property="certificateType" javaType="CertificateType">
+			<id column="cid" property="id"/>
+			<result column="cname" property="name"/>
+		</association>
+		<association property="doctor" javaType="Doctor">
+			<id column="did" property="id"/>
+			<result column="d_name" property="name"/>
+			<result column="dage" property="age"/>
+			<result column="dcertificate_type" property="certificate_type"/>
+			<result column="dID_num" property="ID_num"/>
+			<result column="dphone" property="phone"/>
+			<result column="dspecial_plane" property="special_plane"/>
+			<result column="dsex" property="sex"/>
+			<result column="dage" property="age"/>
+			<result column="birther" property="birther"/>
+			<result column="email" property="email"/>
+			<result column="dsection_id" property="section_id"/>
+			<result column="education" property="education"/>
+			<result column="dnoted" property="noted"/>
+			<result column="dtime" property="time"/>
+		</association>
+	</resultMap>
+	
+	<select id="findAllRegistration" resultMap="RegistrationInforDoctotAndSection">
+		select r.medical_record,d.name d_name,r.time,s.secco_name,r.status
+		from 
+		certificate_type c,
+		registration_infor r,
+		doctor d,
+		section s 
+		<where>
+			<if test="medical_record != null and medical_record != '' ">
+				r.medical_record like '%${medical_record}%' and 
+			</if>
+			<if test="doctor_name != null and doctor_name != '' ">
+				d.name like '%${doctor_name}%' and
+			</if>
+			<if test="section_name != null and section_name != '' ">
+				s.secco_name like '%${section_name}%' and
+			</if>
+			r.certificate_type = c.id  and 
+			r.doctor_id = d.id and 
+			r.section_id = s.id 
+		</where>
+	</select>
+	
+	<select id="findRegistrationById" resultMap="RegistrationInforDoctotAndSection" parameterType="String">
+		select r.*,s.secco_name,d.name d_name,c.name cname 
+		from 
+		certificate_type c,
+		registration_infor r,
+		doctor d,
+		section s
+		where  
+		c.id = r.certificate_type and 
+		d.id = r.doctor_id and 
+		s.id = r.section_id
+		and r.medical_record = #{medical_record}
+	</select>
+	
+	<update id="updateRegistration" parameterType="RegistrationInfor">
+		update registration_infor set name=#{name},certificate_type=#{certificate_type},
+		ID_num=#{ID_num},social_safe_num=#{social_safe_num},phone=#{phone},
+		self_paying=#{self_paying},sex=#{sex},career=#{career},
+		early_appointment=#{early_appointment},noted=#{noted},registration_fee=#{registration_fee},
+		age=#{age},section_id=#{section_id} where medical_record =#{medical_record}
+	</update>
+	
+	<update id="deleteRegistration" parameterType="Map">
+		update registration_infor set 
+		<if test=" status == '已挂号' ">
+			status = "已退号",
+		</if>
+		medical_record =#{medical_record}
+		where medical_record =#{medical_record}
+	</update>
+	
+	<insert id="addRegistration" parameterType="RegistrationInfor">
+		insert into registration_infor (medical_record,name,certificate_type,ID_num,social_safe_num,
+		registration_fee,phone,self_paying,sex,age,career,early_appointment,section_id,status,
+		doctor_id,noted) values (#{medical_record},#{name},#{certificate_type},#{ID_num},#{social_safe_num}
+		,#{registration_fee},#{phone},#{self_paying},#{sex},#{age},#{career},
+		#{early_appointment},#{section_id},#{status},#{doctor_id},#{noted})
+	</insert>
+</mapper>

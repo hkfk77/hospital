@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.DrugMapper">
+	<select id="findAllDrug" resultType="Drug" parameterType="Map">
+		select drug_num,drug_name,drug_type,simple_detail,status,surplus
+		from drug 
+		<where>
+			<if test="drug_name != null and drug_name != '' ">
+				drug_name like '%${drug_name}%' and 
+			</if>
+			<if test="drug_type != null and drug_type != '' ">
+				drug_type = #{drug_type}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findDrugById" parameterType="String" resultType="drug">
+		select * from drug where drug_num = #{drug_num}
+	</select>
+	
+	<update id="updateDrug" parameterType="drug">
+		update drug set purchas_price=#{purchas_price},sale_price=#{sale_price},drug_name=#{drug_name}
+		,drug_type=#{drug_type},simple_detail=#{simple_detail},prodeced_date=#{prodeced_date},
+		expiration_date=#{expiration_date},quality_date=#{quality_date},detail=#{detail}
+		,manufacture=#{manufacture},use_infor=#{use_infor},total_stock=#{total_stock},surplus=#{surplus},
+		status=#{status},noted=#{noted}  where drug_num=#{drug_num}
+	</update>
+	
+	<insert id="addDrug" parameterType="drug">
+		insert into drug (drug_num,drug_url,purchas_price,sale_price,
+		drug_name,drug_type,simple_detail,prodeced_date,expiration_date,quality_date,
+		detail,manufacture,use_infor,total_stock,surplus,status,noted) values 
+		(#{drug_num},#{drug_url},#{purchas_price},#{sale_price},
+		#{drug_name},#{drug_type},#{simple_detail},#{prodeced_date},#{expiration_date},
+		#{quality_date},#{detail},#{manufacture},#{use_infor},#{total_stock},#{surplus},
+		#{status},#{noted})
+	</insert>
+	
+	<delete id="deleteDrugById" parameterType="String">
+		delete from drug where drug_num=#{drug_num}
+	</delete>
+	
+</mapper>

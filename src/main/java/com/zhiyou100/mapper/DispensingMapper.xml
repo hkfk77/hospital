@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.DispensingMapper">
+	
+	<resultMap type="Dispensing" id="DispensingAndDrug">
+		<id column="medical_record" property="medical_record" />
+		<result column="drug_num" property="drug_num"/>
+		<result column="dispens_num" property="dispens_num"/>
+		<result column="alread_send_num" property="alread_send_num"/>
+		<result column="not_send_num" property="not_send_num"/>
+		<result column="time" property="time"/>
+		<collection property="registrationInfor" javaType="RegistrationInfor">
+			<id column="r_medical_record" property="medical_record" />
+			<result column="name" property="name"/>
+			<result column="certificate_type" property="certificate_type"/>
+			<result column="ID_num" property="ID_num"/>
+			<result column="social_safe_num" property="social_safe_num"/>
+			<result column="phone" property="phone"/>
+			<result column="self_paying" property="self_paying"/>
+			<result column="sex" property="sex"/>
+			<result column="career" property="career"/>
+			<result column="early_appointment" property="early_appointment"/>
+			<result column="doctor_id" property="doctor_id"/>
+			<result column="status" property="status"/>
+			<result column="noted" property="noted"/>
+			<result column="time" property="time"/>
+			<result column="section_id" property="section_id"/>
+			<result column="age" property="age"/>
+			<result column="registration_fee" property="registration_fee"/>
+		</collection>
+		<collection property="drug" javaType="Drug">
+			<id column="d_drug_num" property="drug_num"/>
+			<result column="drug_name" property="drug_name"/>
+		</collection>
+	</resultMap>
+
+	<select id="findAllDispensing" parameterType="Map" resultMap="DispensingAndDrug">
+		select 
+		d.medical_record,
+		r.name
+		from 
+		dispensing d,
+		registration_infor r
+		<where>
+			<if test="medical_record != null and medical_record != ''">
+				d.medical_record like '%${medical_record}%' and 
+			</if>		
+			d.medical_record = r.medical_record
+		</where>
+	</select>
+	
+	<select id="dispensingGive" resultMap="DispensingAndDrug" parameterType="String">
+		select 
+		d.medical_record,
+		d.dispens_num,
+		r.name,
+		d.alread_send_num,
+		drug.drug_name
+		from 
+		dispensing d,
+		registration_infor r,
+		drug 
+		where 
+		d.drug_num = drug.drug_num and
+		d.medical_record = r.medical_record and 
+		d.medical_record = #{medical_record}
+	</select>
+	
+	<select id="dispensingDetail" parameterType="String" resultMap="DispensingAndDrug">
+		select 
+		d.medical_record, 
+		d.dispens_num,
+		r.name,
+		d.alread_send_num,
+		d.not_send_num,
+		drug.drug_name
+		from 
+		dispensing d,
+		registration_infor r,
+		drug 
+		where 
+		d.drug_num = drug.drug_num and
+		d.medical_record = r.medical_record and 
+		d.medical_record = #{medical_record}
+	</select>
+	
+	<update id="updateDispensing" parameterType="Map">
+		update dispensing set dispens_num=#{dispens_num},not_send_num = #{not_send_num} where medical_record =#{medical_record}
+	</update>
+	
+	<update id="updateNum" parameterType="dispensing" >
+		update dispensing set alread_send_num=#{dispens_num},not_send_num=0 where medical_record =#{medical_record}
+	</update>
+	
+	<update id="updateOne" parameterType="dispensing">
+		update dispensing set alread_send_num=#{alread_send_num}+1 ,not_send_num=#{not_send_num}-1 where medical_record =#{medical_record}
+	</update>
+	
+	<update id="updateFive" parameterType="dispensing">
+		update dispensing set alread_send_num=#{alread_send_num}+5 ,not_send_num=#{not_send_num}-5 where medical_record =#{medical_record}
+	</update>
+	
+	<update id="updateDelive" parameterType="dispensing">
+		update dispensing set alread_send_num=#{alread_send_num}+30 ,not_send_num=#{not_send_num}-30 where medical_record =#{medical_record}
+	</update>
+	
+
+</mapper>

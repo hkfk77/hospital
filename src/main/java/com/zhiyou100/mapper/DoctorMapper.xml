@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.DoctorMapper">
+	
+	<resultMap type="Doctor" id="doctorSectionResMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="age" property="age"/>
+		<result column="certificate_type" property="certificate_type"/>
+		<result column="ID_num" property="ID_num"/>
+		<result column="phone" property="phone"/>
+		<result column="special_plane" property="special_plane"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+		<result column="birther" property="birther"/>
+		<result column="email" property="email"/>
+		<result column="section_id" property="section_id"/>
+		<result column="education" property="education"/>
+		<result column="noted" property="noted"/>
+		<result column="time" property="time"/>
+		<!-- 使用一对一映射标签 
+			property : 属性,写的是需要关联映射的属性
+			javaType : 需要封装的另外一个类的类型
+						 类路径 (因为已经指定了别名)
+		-->
+		<association property="section" javaType="Section">
+			<id column="id" property="id"/>
+			<result column="seccp_num" property="seccp_num"/>
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		<association property="certificateType" javaType="CertificateType">
+			<id column="cid" property="id"/>
+			<result column="cname" property="name"/>
+		</association>
+		<association property="education1" javaType="Education">
+			<id column="eid" property="id"/>
+			<result column="e_name" property="e_name"/>
+		</association>
+	</resultMap>
+	<select id="findAllDoctor" resultMap="doctorSectionResMap">
+		select d.id,d.name,d.time,s.secco_name 
+		from doctor d,section s 
+		where 
+		d.section_id = s.id
+	</select>
+	
+	<select id="dimFindDoctor" resultMap="doctorSectionResMap" parameterType="Map">
+		select d.id,d.name,d.time,s.secco_name from doctor d,section s 
+		<where>
+			<if test="id != null and id != '' ">
+				d.id like '%${id}%' and
+			</if>
+			<if test="name != null and name != '' ">
+				 d.name like '%${name}%' and
+			</if>
+			<if test="section != null and section != '' ">
+				 s.secco_name like '%${section}%' and
+			</if>
+			d.section_id = s.id
+		</where>
+	</select>
+	
+	
+	<select id="detailDoctorById" parameterType="int" resultMap="doctorSectionResMap">
+		select d.*,s.secco_name,c.name cname,e.e_name from 
+		doctor d,
+		section s,
+		certificate_type c,
+		education e
+		where 
+		d.section_id = s.id and 
+		d.certificate_type=c.id and 
+		d.education = e.id and 
+		d.id=#{id}
+	</select>
+	
+	
+	<update id="editDoctorById" parameterType="doctor">
+		update doctor set name=#{name},certificate_type=#{certificate_type},ID_num=#{ID_num},
+		phone=#{phone},special_plane=#{special_plane},sex=#{sex},birther=#{birther},age=#{age},
+		email=#{email},section_id=#{section_id},education=#{education},noted=#{noted} where id=#{id}
+	</update>
+	
+	<insert id="insertDoctor" parameterType="doctor">
+		insert into doctor (name,certificate_type,ID_num,phone,special_plane,sex,birther,age,email,
+		section_id,education,noted) values (#{name},#{certificate_type},#{ID_num},#{phone},#{special_plane},
+		#{sex},#{birther},#{age},#{email},#{section_id},#{education},#{noted})
+	</insert>
+	
+	<delete id="delete" parameterType="int">
+		delete from doctor where id=#{id}
+	</delete>
+	
+	
+	
+</mapper>

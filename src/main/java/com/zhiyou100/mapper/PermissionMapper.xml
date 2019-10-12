@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.PermissionMapper">
+	
+	<select id="findAllPermission" parameterType="Map" resultType="permission">
+		select * from permission
+		<where>
+			<if test="resource_name != null and resource_name != '' ">
+				resource_name like '%${resource_name}%'
+			</if>
+		</where>
+	</select>
+	
+	<update id="deletePermissionById" parameterType="int">
+		update permission set status = 2 where id= #{id}
+	</update>
+	
+	<select id="findPermissionById" parameterType="int" resultType="permission">
+		select * from permission where id =#{id}
+	</select>
+	
+	<update id="editPermission" parameterType="permission">
+		update permission set resource_name=#{resource_name},resource_url=#{resource_url},
+		status=#{status} where id = #{id}
+	</update>
+	
+	<insert id="insertPermission" parameterType="permission">
+		insert into permission (resource_name,resource_url,status) values 
+		(#{resource_name},#{resource_url},#{status})
+	</insert>
+	
+</mapper>

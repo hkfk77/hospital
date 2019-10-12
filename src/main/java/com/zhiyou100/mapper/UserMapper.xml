@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.UserMapper" >
+	
+	<resultMap type="user" id="userAndRole">
+		<id column="id" property="id"/>
+		<result column="user_name" property="user_name" />
+		<result column="password" property="password" />
+		<result column="update_time" property="update_time" />
+		<result column="status" property="status" />
+		<result column="real_name" property="real_name" />
+		<result column="email" property="email" />
+		<association property="userRole" javaType="UserRole">
+			<id column="ur_id" property="id"/>
+			<result column="user_id" property="user_id" />
+			<result column="role_id" property="role_id" />
+			<association property="role" javaType="Role">
+				<id column="r_id" property="id"/>
+				<result column="role_num" property="role_num" />
+				<result column="role_name" property="role_name" />
+				<result column="statuss" property="statuss" />
+			</association>
+		</association>
+	</resultMap>
+	
+	<select id="findAllUser" resultMap="userAndRole" parameterType="Map"> 
+		select 
+		u.id,
+		u.user_name,
+		u.real_name,
+		r.role_name
+		from 
+		user u,
+		user_role ur,
+		role r
+		<where>
+			<if test="username != null and username != '' ">
+				u.user_name like '%${username}%' and
+			</if>
+			u.id = ur.user_id and
+			ur.role_id = r.id
+		</where>
+	</select>
+	
+	<select id="findUserById" resultMap="userAndRole" parameterType="int">
+		select 
+		u.id,
+		u.password,
+		u.user_name,
+		u.real_name,
+		u.email,
+		u.status,
+		r.role_num,
+		ur.role_id
+		from 
+		user u,
+		user_role ur,
+		role r
+		where 
+		u.id = ur.user_id and
+		ur.role_id = r.id and 
+		u.id = #{id}
+	</select>
+	
+	<update id="editRole" parameterType="Map">
+		update user_role set role_id =#{role_name} where user_id = #{id}
+	</update>
+	
+	<update id="editUser" parameterType="user">
+		update user set password =#{password},email=#{email},
+		real_name=#{real_name},status=#{status} where id =#{id}
+	</update>
+	
+	<update id="deleteUserById" parameterType="int">
+		update user set status=3 where id=#{id}
+	</update>
+	
+	<insert id="insertUser" parameterType="User">
+		<selectKey keyProperty="id" resultType="int" order="AFTER">
+			select last_insert_id();
+		</selectKey>
+		insert into user (user_name,password,email,real_name,status) values 
+		(#{user_name},#{password},#{email},#{real_name},#{status})
+	</insert>
+	
+	<insert id="insetUserRole" parameterType="Map">
+		insert into user_role (role_id,user_id) values (#{role_id},#{id})
+	</insert>
+	
+	<update id="updatePassword" parameterType="user">
+		update user set password=#{password} where id= #{id}
+	</update>
+	
+</mapper>

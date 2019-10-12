@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.zhiyou100.mapper.ChargeMapper">
+	<!-- <resultMap type="RegistrationInfor" id="RegistrationInforAndChargeManager">
+		<id column="medical_record" property="medical_record" />
+		<result column="name" property="name"/>
+		<result column="certificate_type" property="certificate_type"/>
+		<result column="ID_num" property="ID_num"/>
+		<result column="social_safe_num" property="social_safe_num"/>
+		<result column="phone" property="phone"/>
+		<result column="self_paying" property="self_paying"/>
+		<result column="sex" property="sex"/>
+		<result column="career" property="career"/>
+		<result column="early_appointment" property="early_appointment"/>
+		<result column="doctor_id" property="doctor_id"/>
+		<result column="status" property="status"/>
+		<result column="noted" property="noted"/>
+		<result column="time" property="time"/>
+		<result column="section_id" property="section_id"/>
+		<result column="age" property="age"/>
+		<result column="registration_fee" property="registration_fee"/>
+		<collection property="chargeManager" ofType="ChargeManager">
+			<id column="c_id" property="id"/>
+			<result column="c_medical_record" property="medical_record" />
+			<result column="pay_items_id" property="pay_items_id" />
+			<result column="charge_money" property="charge_money" />
+			<result column="charge_time" property="charge_time" />
+			<association property="payItems" javaType="PayItems">
+				<id column="p_id" property="id"/>
+				<result column="charge_item_name" property="charge_item_name" />
+				<result column="receivable_money" property="receivable_money" />
+			</association>
+		</collection>
+	</resultMap> -->
+	
+	<select id="findAllCharge" resultType="ChargeManager" parameterType="Map">
+		select 
+		r.medical_record,
+		r.name,
+		p.charge_item_name,
+		c.charge_money,
+		c.charge_time
+		from 
+		registration_infor r,
+		charge_manager c,
+		pay_items p 
+		<where>
+			<if test="medical_record != null and medical_record != '' ">
+				r.medical_record like '%${medical_record}%' and
+			</if>
+			<if test="name != null and name != '' ">
+				r.name like '%${name}%' and			 
+			</if>
+			r.medical_record = c.medical_record and
+			c.pay_items_id = p.id
+		</where>
+	</select>
+	
+	
+	<select id="findCharge" parameterType="String" resultType="ChargeManager">
+		select c.medical_record,
+		r.name 
+		from 
+		registration_infor r,
+		charge_manager c
+		where 
+		r.medical_record = c.medical_record and
+		r.medical_record = #{medical_record} group by r.name 
+	</select>
+	
+	<insert id="addCharge" parameterType="ChargeManager">
+		insert into charge_manager (medical_record, pay_items_id,charge_money,charge_time) 
+		values (#{medical_record},#{pay_items_id},#{charge_money},#{charge_time})
+	</insert>
+	
+</mapper>
